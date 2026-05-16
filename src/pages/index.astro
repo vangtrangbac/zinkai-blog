@@ -1,0 +1,160 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getPublishedPosts, buildCategoryBranches } from "../utils/posts";
+
+const posts = await getPublishedPosts();
+const branches = buildCategoryBranches(posts);
+const sorted = [...posts].sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout
+  title="Zinkai Notebook — sổ tay IT"
+  description="Blog tĩnh: Markdown, copy code, giao diện kiểu terminal journal."
+>
+  <div class="shell">
+    <Sidebar branches={branches} />
+    <main id="main" class="main">
+      <header class="page-header">
+        <h1>Sổ tay cho dev & IT</h1>
+        <p class="page-header__lead">
+          Thêm bài trong <code>src/content/blog/</code>. Dùng <strong>category</strong> và
+          <strong>subcategory</strong> trong frontmatter để nhóm như cây thư mục (sidebar + trang chủ).
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn--primary" href="/rss.xml">RSS</a>
+          <a class="btn btn--ghost" href="#by-category">Theo danh mục</a>
+        </div>
+      </header>
+
+      <section aria-labelledby="latest-flat-title">
+        <details
+          class="collapse collapse--page collapse--page-section"
+          open
+        >
+          <summary
+            class="collapse__summary collapse__summary--page-section"
+            id="latest-flat-title"
+          >
+            Mới nhất
+          </summary>
+          <div class="post-list">
+          {
+            sorted.slice(0, 6).map((p) => (
+              <a class="post-card" href={`/blog/${p.slug}/`}>
+                <h3 class="post-card__title">{p.data.title}</h3>
+                <p class="post-card__meta">
+                  {p.data.pubDate.toLocaleDateString("vi-VN", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                  {p.data.category &&
+                    ` · ${p.data.category}${p.data.subcategory ? ` / ${p.data.subcategory}` : ""}`}
+                  {p.data.draft ? " · draft" : ""}
+                </p>
+                <p class="post-card__desc">{p.data.description}</p>
+                {p.data.tags.length > 0 && (
+                  <div class="tags">
+                    {p.data.tags.map((t) => (
+                      <span class="tag">{t}</span>
+                    ))}
+                  </div>
+                )}
+              </a>
+            ))
+          }
+        </div>
+        </details>
+      </section>
+
+      <section
+        id="by-category"
+        aria-labelledby="by-category-title"
+      >
+        <h2 id="by-category-title" class="section-heading-plain">
+          Theo danh mục
+        </h2>
+        {
+          branches.map(({ category, subcategories }) => (
+            <details
+              class="collapse collapse--page collapse--page-cat"
+              open
+            >
+              <summary class="collapse__summary collapse__summary--page-cat">
+                {category}
+              </summary>
+              <div class="category-block__inner">
+                {subcategories.map(({ label, posts: group }) =>
+                  label ? (
+                    <details
+                      class="collapse collapse--page collapse--page-sub"
+                      open
+                    >
+                      <summary class="collapse__summary collapse__summary--page-sub">
+                        {label}
+                      </summary>
+                      <div class="post-list">
+                        {group.map((p) => (
+                          <a class="post-card" href={`/blog/${p.slug}/`}>
+                            <h3 class="post-card__title">{p.data.title}</h3>
+                            <p class="post-card__meta">
+                              {p.data.pubDate.toLocaleDateString("vi-VN", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                              {p.data.draft ? " · draft" : ""}
+                            </p>
+                            <p class="post-card__desc">{p.data.description}</p>
+                            {p.data.tags.length > 0 && (
+                              <div class="tags">
+                                {p.data.tags.map((t) => (
+                                  <span class="tag">{t}</span>
+                                ))}
+                              </div>
+                            )}
+                          </a>
+                        ))}
+                      </div>
+                    </details>
+                  ) : (
+                    <div class="post-list post-list--flush">
+                      {group.map((p) => (
+                        <a class="post-card" href={`/blog/${p.slug}/`}>
+                          <h3 class="post-card__title">{p.data.title}</h3>
+                          <p class="post-card__meta">
+                            {p.data.pubDate.toLocaleDateString("vi-VN", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                            {p.data.draft ? " · draft" : ""}
+                          </p>
+                          <p class="post-card__desc">{p.data.description}</p>
+                          {p.data.tags.length > 0 && (
+                            <div class="tags">
+                              {p.data.tags.map((t) => (
+                                <span class="tag">{t}</span>
+                              ))}
+                            </div>
+                          )}
+                        </a>
+                      ))}
+                    </div>
+                  )
+                )}
+              </div>
+            </details>
+          ))
+        }
+      </section>
+
+      <footer class="footer-mini">
+        Built with Astro · chỉnh sửa nội dung = chỉnh file .md
+      </footer>
+    </main>
+  </div>
+</BaseLayout>

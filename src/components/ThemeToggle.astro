@@ -1,0 +1,48 @@
+---
+---
+
+<button
+  type="button"
+  class="theme-toggle theme-toggle--icon-only"
+  id="theme-toggle"
+  aria-label="Chuyển giao diện sáng hoặc tối"
+  aria-pressed="true"
+>
+  <span class="theme-toggle__icons" aria-hidden="true">
+    <span class="theme-toggle__icon theme-toggle__icon--sun">☀</span>
+    <span class="theme-toggle__icon theme-toggle__icon--moon">☽</span>
+  </span>
+</button>
+
+<script>
+  const KEY = "zinkai-theme";
+
+  function syncToggle(btn) {
+    const dark = document.documentElement.dataset.theme !== "light";
+    btn.setAttribute("aria-pressed", dark ? "true" : "false");
+    btn.setAttribute(
+      "aria-label",
+      dark ? "Đang dùng giao diện tối — chuyển sang sáng" : "Đang dùng giao diện sáng — chuyển sang tối",
+    );
+  }
+
+  function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem(KEY, theme);
+    } catch {
+      /* ignore */
+    }
+    window.dispatchEvent(new CustomEvent("blog:theme", { detail: { theme } }));
+  }
+
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    syncToggle(btn);
+    btn.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      setTheme(next);
+      syncToggle(btn);
+    });
+  }
+</script>

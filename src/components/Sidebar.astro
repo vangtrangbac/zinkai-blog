@@ -1,0 +1,121 @@
+---
+import type { CategoryBranch } from "../utils/posts";
+
+type Props = {
+  branches: CategoryBranch;
+  activeSlug?: string;
+};
+
+const { branches, activeSlug } = Astro.props;
+
+function subContainsActive(
+  posts: (typeof branches)[0]["subcategories"][0]["posts"],
+  slug?: string
+) {
+  if (!slug) return false;
+  return posts.some((p) => p.slug === slug);
+}
+
+function categoryContainsActive(
+  subcategories: (typeof branches)[0]["subcategories"],
+  slug?: string
+) {
+  if (!slug) return false;
+  return subcategories.some((s) => subContainsActive(s.posts, slug));
+}
+---
+
+<aside class="sidebar" aria-label="Điều hướng bài viết">
+  <a class="brand" href="/">
+    <div class="brand__title">
+      <span class="brand__dot" aria-hidden="true"></span>
+      Zinkai Notebook
+    </div>
+    <div class="brand__tag">~/notes — IT & dev</div>
+  </a>
+
+  {
+    branches.map(({ category, subcategories }, catIndex) => {
+      const catOpen =
+        activeSlug === undefined || categoryContainsActive(subcategories, activeSlug);
+
+      return (
+        <details
+          class:list={[
+            "collapse",
+            "collapse--sidebar",
+            "collapse--sidebar-cat",
+            catIndex === 0 && "collapse--first",
+          ]}
+          open={catOpen ? true : undefined}
+        >
+          <summary class="collapse__summary collapse__summary--sidebar-cat">
+            {category}
+          </summary>
+          <div class="collapse__body">
+            {subcategories.map(({ label, posts }) => {
+              const subOpen =
+                activeSlug === undefined || subContainsActive(posts, activeSlug);
+
+              if (label) {
+                return (
+                  <details
+                    class:list={["collapse", "collapse--sidebar", "collapse--sidebar-sub"]}
+                    open={subOpen ? true : undefined}
+                  >
+                    <summary class="collapse__summary collapse__summary--sidebar-sub">
+                      {label}
+                    </summary>
+                    <ul class:list={["nav-list", "nav-list--nested"]}>
+                      {posts.map((p) => (
+                        <li>
+                          <a
+                            href={`/blog/${p.slug}/`}
+                            aria-current={
+                              p.slug === activeSlug ? "page" : undefined
+                            }
+                          >
+                            {p.data.title}
+                            <div class="nav-list__date">
+                              {p.data.pubDate.toLocaleDateString("vi-VN", {
+                                day: "2-digit",
+                                month: "short",
+                              })}
+                            </div>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                );
+              }
+
+              return (
+                <ul class="nav-list">
+                  {posts.map((p) => (
+                    <li>
+                      <a
+                        href={`/blog/${p.slug}/`}
+                        aria-current={
+                          p.slug === activeSlug ? "page" : undefined
+                        }
+                      >
+                        {p.data.title}
+                        <div class="nav-list__date">
+                          {p.data.pubDate.toLocaleDateString("vi-VN", {
+                            day: "2-digit",
+                            month: "short",
+                          })}
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })}
+          </div>
+        </details>
+      );
+    })
+  }
+</aside>

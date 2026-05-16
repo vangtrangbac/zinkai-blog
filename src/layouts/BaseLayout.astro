@@ -1,0 +1,50 @@
+---
+import "../styles/global.css";
+import MermaidDiagrams from "../components/MermaidDiagrams.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+
+type Props = {
+  title: string;
+  description?: string;
+};
+
+const { title, description = "Sổ tay IT — Markdown, tĩnh, gọn." } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <script is:inline>
+      (function () {
+        var KEY = "zinkai-theme";
+        try {
+          var t = localStorage.getItem(KEY);
+          var lightOS = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var theme = t === "light" || t === "dark" ? t : lightOS ? "light" : "dark";
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+  </head>
+  <body>
+    <div class="theme-switch-anchor">
+      <ThemeToggle />
+    </div>
+    <a class="skip-link" href="#main">Nhảy tới nội dung</a>
+    <slot />
+    <MermaidDiagrams />
+  </body>
+</html>

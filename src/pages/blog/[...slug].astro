@@ -1,0 +1,98 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import CopyEnhancements from "../../components/CopyEnhancements.astro";
+import { getPublishedPosts, buildCategoryBranches } from "../../utils/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const all = await getPublishedPosts();
+const branches = buildCategoryBranches(all);
+
+const dateLabel = post.data.pubDate.toLocaleDateString("vi-VN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout title={`${post.data.title} · Zinkai Notebook`} description={post.data.description}>
+  <div class="shell">
+    <Sidebar branches={branches} activeSlug={post.slug} />
+    <main id="main" class="main">
+      <article>
+        <nav class="breadcrumb" aria-label="Phân loại">
+          <a href="/">Trang chủ</a>
+          {
+            post.data.category && (
+              <>
+                <span class="breadcrumb__sep" aria-hidden="true">
+                  ·
+                </span>
+                <span>{post.data.category}</span>
+              </>
+            )
+          }
+          {
+            post.data.subcategory && (
+              <>
+                <span class="breadcrumb__sep" aria-hidden="true">
+                  ·
+                </span>
+                <span>{post.data.subcategory}</span>
+              </>
+            )
+          }
+        </nav>
+        <header>
+          <h1>{post.data.title}</h1>
+          <div class="article-meta">
+            {dateLabel}
+            {
+              post.data.updatedDate && (
+                <>
+                  {" "}
+                  · cập nhật{" "}
+                  {post.data.updatedDate.toLocaleDateString("vi-VN")}
+                </>
+              )
+            }
+            {post.data.draft && " · bản nháp"}
+          </div>
+          <div class="article-toolbar">
+            <button id="copy-article-btn" class="btn btn--ghost" type="button">
+              Copy text
+            </button>
+            <button id="copy-rich-btn" class="btn btn--ghost" type="button">
+              Copy rich
+            </button>
+          </div>
+          {post.data.tags.length > 0 && (
+            <div class="tags" style="margin-bottom: 1.25rem;">
+              {post.data.tags.map((t) => (
+                <span class="tag">{t}</span>
+              ))}
+            </div>
+          )}
+        </header>
+
+        <div id="post-content" class="prose">
+          <Content />
+        </div>
+      </article>
+
+      <footer class="footer-mini">
+        <a href="/">← Về danh sách</a>
+      </footer>
+    </main>
+  </div>
+  <CopyEnhancements />
+</BaseLayout>

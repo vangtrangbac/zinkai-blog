@@ -1,0 +1,79 @@
+<script is:inline>
+  function setBtnState(btn, text, cls) {
+    btn.textContent = text;
+    btn.classList.toggle("is-done", !!cls);
+  }
+
+  async function copyText(text, btn, okLabel) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setBtnState(btn, okLabel, true);
+      setTimeout(() => setBtnState(btn, btn.dataset.orig || "Copy", false), 1800);
+    } catch {
+      setBtnState(btn, "Err", true);
+      setTimeout(() => setBtnState(btn, btn.dataset.orig || "Copy", false), 1800);
+    }
+  }
+
+  function enhanceCodeBlocks() {
+    document.querySelectorAll(".prose pre").forEach((pre) => {
+      if (pre.querySelector(".code-copy-btn")) return;
+      const code = pre.querySelector("code");
+      if (!code) return;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "code-copy-btn";
+      btn.textContent = "Copy";
+      btn.dataset.orig = "Copy";
+      btn.setAttribute("aria-label", "Copy code");
+
+      btn.addEventListener("click", () => {
+        copyText(code.innerText, btn, "Copied");
+      });
+
+      pre.appendChild(btn);
+    });
+  }
+
+  function wireArticleCopy() {
+    const article = document.getElementById("post-content");
+    const btn = document.getElementById("copy-article-btn");
+    if (!article || !btn || !(btn instanceof HTMLButtonElement)) return;
+
+    btn.dataset.orig = (btn.textContent || "Copy text").trim();
+    btn.addEventListener("click", () => {
+      const text = article.innerText.replace(/\n{3,}/g, "\n\n").trim();
+      copyText(text, btn, "Copied");
+    });
+  }
+
+  function wireCopyFormatted() {
+    const article = document.getElementById("post-content");
+    const btn = document.getElementById("copy-rich-btn");
+    if (!article || !btn || !(btn instanceof HTMLButtonElement)) return;
+
+    btn.dataset.orig = "Copy rich";
+
+    btn.addEventListener("click", async () => {
+      const html = article.innerHTML;
+      const text = article.innerText.replace(/\n{3,}/g, "\n\n").trim();
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([text], { type: "text/plain" }),
+          }),
+        ]);
+        setBtnState(btn, "Copied", true);
+        setTimeout(() => setBtnState(btn, btn.dataset.orig || "Copy rich", false), 1800);
+      } catch {
+        await copyText(text, btn, "Copied");
+      }
+    });
+  }
+
+  enhanceCodeBlocks();
+  wireArticleCopy();
+  wireCopyFormatted();
+</script>

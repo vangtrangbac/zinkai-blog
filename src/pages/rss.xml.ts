@@ -1,5 +1,6 @@
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
+import { SITE_ORIGIN, BASE_SEGMENT } from "../../deploy-path.mjs";
 import { getPublishedPosts } from "../utils/posts";
 
 export async function GET(context: APIContext) {
@@ -8,15 +9,18 @@ export async function GET(context: APIContext) {
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   );
 
+  const deployBase = new URL(`${BASE_SEGMENT}/`, `${SITE_ORIGIN}/`);
+  const siteStr = deployBase.href.replace(/\/$/, "");
+
   return rss({
     title: "Zinkai Notebook",
     description: "Sổ tay IT — blog tĩnh bằng Markdown.",
-    site: context.site ?? "https://zinkai.blog",
+    site: siteStr,
     items: sorted.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,
       description: post.data.description,
-      link: `/blog/${post.slug}/`,
+      link: new URL(`blog/${post.slug}/`, deployBase).href,
     })),
     customData: `<language>vi-vn</language>`,
   });

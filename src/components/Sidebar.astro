@@ -1,5 +1,6 @@
 ---
 import type { CategoryBranch } from "../utils/posts";
+import { siteBaseUrl } from "../utils/site-path";
 
 type Props = {
   branches: CategoryBranch;
@@ -7,6 +8,7 @@ type Props = {
 };
 
 const { branches, activeSlug } = Astro.props;
+const base = siteBaseUrl();
 
 function subContainsActive(
   posts: (typeof branches)[0]["subcategories"][0]["posts"],
@@ -26,7 +28,7 @@ function categoryContainsActive(
 ---
 
 <aside class="sidebar" aria-label="Điều hướng bài viết">
-  <a class="brand" href="/">
+  <a class="brand" href={base}>
     <div class="brand__title">
       <span class="brand__dot" aria-hidden="true"></span>
       Zinkai Notebook
@@ -70,7 +72,7 @@ function categoryContainsActive(
                       {posts.map((p) => (
                         <li>
                           <a
-                            href={`/blog/${p.slug}/`}
+                            href={`${base}blog/${p.slug}/`}
                             aria-current={
                               p.slug === activeSlug ? "page" : undefined
                             }
@@ -95,7 +97,7 @@ function categoryContainsActive(
                   {posts.map((p) => (
                     <li>
                       <a
-                        href={`/blog/${p.slug}/`}
+                        href={`${base}blog/${p.slug}/`}
                         aria-current={
                           p.slug === activeSlug ? "page" : undefined
                         }

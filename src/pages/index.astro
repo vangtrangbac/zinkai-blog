@@ -2,12 +2,14 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Sidebar from "../components/Sidebar.astro";
 import { getPublishedPosts, buildCategoryBranches } from "../utils/posts";
+import { siteBaseUrl } from "../utils/site-path";
 
 const posts = await getPublishedPosts();
 const branches = buildCategoryBranches(posts);
 const sorted = [...posts].sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+const base = siteBaseUrl();
 ---
 
 <BaseLayout
@@ -24,7 +26,7 @@ const sorted = [...posts].sort(
           <strong>subcategory</strong> trong frontmatter để nhóm như cây thư mục (sidebar + trang chủ).
         </p>
         <div class="hero-actions">
-          <a class="btn btn--primary" href="/rss.xml">RSS</a>
+          <a class="btn btn--primary" href={`${base}rss.xml`}>RSS</a>
           <a class="btn btn--ghost" href="#by-category">Theo danh mục</a>
         </div>
       </header>
@@ -43,7 +45,7 @@ const sorted = [...posts].sort(
           <div class="post-list">
           {
             sorted.slice(0, 6).map((p) => (
-              <a class="post-card" href={`/blog/${p.slug}/`}>
+              <a class="post-card" href={`${base}blog/${p.slug}/`}>
                 <h3 class="post-card__title">{p.data.title}</h3>
                 <p class="post-card__meta">
                   {p.data.pubDate.toLocaleDateString("vi-VN", {
@@ -98,7 +100,7 @@ const sorted = [...posts].sort(
                       </summary>
                       <div class="post-list">
                         {group.map((p) => (
-                          <a class="post-card" href={`/blog/${p.slug}/`}>
+                          <a class="post-card" href={`${base}blog/${p.slug}/`}>
                             <h3 class="post-card__title">{p.data.title}</h3>
                             <p class="post-card__meta">
                               {p.data.pubDate.toLocaleDateString("vi-VN", {
@@ -123,7 +125,7 @@ const sorted = [...posts].sort(
                   ) : (
                     <div class="post-list post-list--flush">
                       {group.map((p) => (
-                        <a class="post-card" href={`/blog/${p.slug}/`}>
+                        <a class="post-card" href={`${base}blog/${p.slug}/`}>
                           <h3 class="post-card__title">{p.data.title}</h3>
                           <p class="post-card__meta">
                             {p.data.pubDate.toLocaleDateString("vi-VN", {

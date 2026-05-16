@@ -64,10 +64,18 @@ npm run preview
 
 Output: thư mục `dist/` (upload lên Netlify, Cloudflare Pages, GitHub Pages, v.v.).
 
+## GitHub Pages (repo `username/repo-name`)
+
+1. **Trên GitHub:** repo → **Settings** → **Pages** → **Build and deployment** → **Source:** **GitHub Actions**.
+2. Push nhánh `main`: workflow `.github/workflows/deploy.yml` sẽ `npm ci` + `npm run build` và deploy `dist/`.
+3. Site: `https://vangtrangbac.github.io/zinkai-blog/` (đổi user/repo thì sửa file `deploy-path.mjs` và `base` tương ứng trong `astro.config.mjs` — hiện import từ `deploy-path.mjs`).
+4. Gắn **custom domain** (ví dụ `zinkai.blog`): bỏ hoặc chỉnh `base`, đặt `public/CNAME`, cập nhật `site` — xem [Astro + GitHub Pages](https://docs.astro.build/en/guides/deploy/github/).
+
 ## Cấu hình
 
-- `astro.config.mjs` — `site`: đổi thành domain thật của bạn (ảnh hưởng RSS, sitemap, canonical).
-- Theme code highlight: `markdown.shikiConfig.theme` trong cùng file.
+- `deploy-path.mjs` — `SITE_ORIGIN` + `BASE_SEGMENT` (GitHub Pages project site); `astro.config.mjs` import file này.
+- `site` (trong config) + `base`: ảnh hưởng RSS, sitemap, canonical; `base` **bắt buộc** khi site không nằm ở gốc `*.github.io`.
+- Theme code highlight: `markdown.shikiConfig.theme` trong `astro.config.mjs`.
 
 ## Node
 

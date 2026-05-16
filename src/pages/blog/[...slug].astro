@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import CopyEnhancements from "../../components/CopyEnhancements.astro";
 import { getPublishedPosts, buildCategoryBranches } from "../../utils/posts";
+import { siteBaseUrl } from "../../utils/site-path";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -16,6 +17,7 @@ const { post } = Astro.props;
 const { Content } = await post.render();
 const all = await getPublishedPosts();
 const branches = buildCategoryBranches(all);
+const base = siteBaseUrl();
 
 const dateLabel = post.data.pubDate.toLocaleDateString("vi-VN", {
   year: "numeric",
@@ -30,7 +32,7 @@ const dateLabel = post.data.pubDate.toLocaleDateString("vi-VN", {
     <main id="main" class="main">
       <article>
         <nav class="breadcrumb" aria-label="Phân loại">
-          <a href="/">Trang chủ</a>
+          <a href={base}>Trang chủ</a>
           {
             post.data.category && (
               <>
@@ -90,7 +92,7 @@ const dateLabel = post.data.pubDate.toLocaleDateString("vi-VN", {
       </article>
 
       <footer class="footer-mini">
-        <a href="/">← Về danh sách</a>
+        <a href={base}>← Về danh sách</a>
       </footer>
     </main>
   </div>
